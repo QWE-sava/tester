@@ -7,7 +7,7 @@ from openai import OpenAI
 # 環境変数 'OPENROUTER_API_KEY' から読み込むことを推奨します。
 # os.environ.get('OPENROUTER_API_KEY', 'YOUR_API_KEY_HERE') の形式で設定できます。
 # 環境変数に設定していない場合は、'YOUR_API_KEY_HERE'の部分に直接キーを貼り付けてください。
-openrouter_api_key = os.environ.get('OPENROUTER_API_KEY', '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')
+openrouter_api_key = os.environ.get('OPENROUTER_API_KEY', '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')
 
 # OpenRouterのAPIベースURL
 # OpenRouterはOpenAI互換の形式を採用しているため、エンドポイントを指定します。
@@ -72,7 +72,7 @@ def test_openrouter_api(prompt: str):
 
 if __name__ == "__main__":
     # テスト用のプロンプト (物理研究/レゴプログラミングに関連した質問)
-    test_prompt = import('なんて聞く？')
+    test_prompt = input('なんて聞く？')
 
     # APIをテスト実行
     test_openrouter_api(test_prompt)
