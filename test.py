@@ -72,7 +72,7 @@ def test_openrouter_api(prompt: str):
 
 if __name__ == "__main__":
     # テスト用のプロンプト (物理研究/レゴプログラミングに関連した質問)
-    test_prompt = "レゴ EV3を使ってジャイロセンサーのドリフト現象を補正する基本的なプログラミングロジックを解説してください。"
+    test_prompt = import('なんて聞く？')
 
     # APIをテスト実行
     test_openrouter_api(test_prompt)
