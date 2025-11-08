@@ -9,7 +9,7 @@
     <script defer src="https://pyscript.net/releases/2024.1.1/pyscript.js"></script>
 
     <py-config>
-        packages = ["requests"]
+        packages = ["requests"] 
     </py-config>
 
     <style>
@@ -43,30 +43,38 @@
 
         <py-script>
 import json
-import requests
+# requestsを非同期で使用します
+import requests 
 from pyscript import Element
 
+# ⚠️ 注意: APIキーを直接コード内に記述することは非推奨です。
+# ご自身のキーに置き換えてください。
+# 以前使用されていたキーをそのまま記載していますが、必ず確認・変更してください。
 OPENROUTER_API_KEY = "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" 
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL_NAME = "google/gemma-3-27b-it:free"
 
-def run_chat():
+# run_chat 関数を async に変更し、非同期通信に対応させます
+async def run_chat(): 
     """
-    ボタンクリック時に実行される関数。APIを呼び出します。
+    ボタンクリック時に実行される関数。APIを非同期で呼び出します。
     """
     output_element = Element('api_response_output')
     
+    # 1. 入力値の取得とチェック
     user_prompt = Element('prompt_input').value
     if not user_prompt.strip():
         output_element.write("質問を入力してください。", append=False)
         return
 
+    # 2. ロード中メッセージの表示
     output_element.write('<span class="loading">... Gemma 3 が思考中です ...</span>', append=False)
     
+    # 3. リクエストヘッダーとペイロードの構築
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json",
-        # OpenRouterはユーザー識別子を推奨しています (PyScript環境ではIPアドレスの取得が困難なため、ここでは固定値)
+        # OpenRouterはユーザー識別子を推奨
         "HTTP-Referer": "https://example.com/pyscript-chat-demo" 
     }
 
@@ -79,20 +87,24 @@ def run_chat():
         "temperature": 0.7
     }
 
+    # 4. API呼び出し (await requests.postを使用)
     try:
-        response = requests.post(
+        # requests.post() の前に await を追加して非同期実行を待機
+        response = await requests.post( 
             OPENROUTER_BASE_URL, 
             headers=headers, 
             data=json.dumps(data)
         )
         response.raise_for_status() # HTTPエラーがあれば例外を発生させる
 
+        # 5. 応答の解析
         json_response = response.json()
         
         if json_response.get('choices'):
             model_response = json_response['choices'][0]['message']['content'].strip()
             total_tokens = json_response['usage']['total_tokens'] if json_response.get('usage') else "N/A"
             
+            # 6. 結果の表示
             html_output = f"""
             <p><strong>【Gemma 3 の応答】</strong></p>
             {model_response}
@@ -104,11 +116,13 @@ def run_chat():
             output_element.write(html_output, append=False)
             
         else:
+            # APIがエラーコードなしに無効なJSONを返した場合の処理
             error_message = f"【エラー】APIからの応答が不完全です。JSON: {json.dumps(json_response, indent=2)}"
             output_element.write(f'<div class="error">{error_message}</div>', append=False)
 
 
     except requests.exceptions.RequestException as e:
+        # HTTPエラーコード (4xx, 5xx) やネットワークエラーの捕捉
         error_message = f"【API通信エラーが発生しました】<br>エラー内容: {e}"
         output_element.write(f'<div class="error">{error_message}</div>', append=False)
         
