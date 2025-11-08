@@ -44,12 +44,8 @@
         <py-script>
 import json
 import requests
-# PyScriptでは、HTML要素を操作するために `Element` クラスを使用します。
 from pyscript import Element
 
-# --- API設定 ---
-# ⚠️ 注意: APIキーを直接コード内に記述することは非推奨です。
-# 自身のキーに置き換えてください。
 OPENROUTER_API_KEY = "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" 
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1/chat/completions"
 MODEL_NAME = "google/gemma-3-27b-it:free"
@@ -60,16 +56,13 @@ def run_chat():
     """
     output_element = Element('api_response_output')
     
-    # 1. 入力値の取得と準備
     user_prompt = Element('prompt_input').value
     if not user_prompt.strip():
         output_element.write("質問を入力してください。", append=False)
         return
 
-    # 2. ロード中メッセージの表示
     output_element.write('<span class="loading">... Gemma 3 が思考中です ...</span>', append=False)
     
-    # 3. リクエストヘッダーとペイロードの構築
     headers = {
         "Authorization": f"Bearer {OPENROUTER_API_KEY}",
         "Content-Type": "application/json",
@@ -86,9 +79,7 @@ def run_chat():
         "temperature": 0.7
     }
 
-    # 4. API呼び出し (requests.postを使用)
     try:
-        # requestsライブラリはPyScript/Pyodide環境で外部通信を扱うための主要な方法の一つです
         response = requests.post(
             OPENROUTER_BASE_URL, 
             headers=headers, 
@@ -96,14 +87,12 @@ def run_chat():
         )
         response.raise_for_status() # HTTPエラーがあれば例外を発生させる
 
-        # 5. 応答の解析
         json_response = response.json()
         
         if json_response.get('choices'):
             model_response = json_response['choices'][0]['message']['content'].strip()
             total_tokens = json_response['usage']['total_tokens'] if json_response.get('usage') else "N/A"
             
-            # 6. 結果の表示
             html_output = f"""
             <p><strong>【Gemma 3 の応答】</strong></p>
             {model_response}
